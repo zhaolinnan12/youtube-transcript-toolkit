@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YouTube Transcript Toolkit — Subtitle Specs, Regex Cheatsheet &amp; MIT CLI</title>
+  <meta name="description" content="Open-source MIT Node.js CLI, CSV datasets, and Markdown specifications for cleaning and converting YouTube transcripts across SRT, WebVTT, TXT, and Obsidian Markdown.">
+  <style>
+    :root {
+      --bg: #f8f7f4;
+      --card: #ffffff;
+      --ink: #1b2823;
+      --muted: #5a6760;
+      --line: #e2ddd3;
+      --accent: #c84b31;
+      --code-bg: #1b2823;
+      --code-ink: #f3ede2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+    }
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 40px 20px 72px;
+    }
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: #fbeae6;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 38px);
+      line-height: 1.18;
+    }
+    .lead {
+      margin: 0 0 18px;
+      font-size: 17px;
+      color: var(--muted);
+    }
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .nav-links a {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-links a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    section {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 21px;
+    }
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+    }
+    .table-wrap {
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      font-weight: 600;
+      color: var(--ink);
+      background: #faf8f4;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.9em;
+      background: #f1ede6;
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: var(--ink);
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-ink);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 0;
+    }
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+    }
+    footer {
+      margin-top: 36px;
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+    }
+    a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="badge">MIT Open Source · Zero Dependencies</span>
+      <h1>YouTube Transcript Toolkit</h1>
+      <p class="lead">Node.js CLI, subtitle format specifications, tested Regex cleanup recipes, and timestamp-overhead CSV datasets for working with YouTube captions across SRT, WebVTT, plain text, and Obsidian Markdown.</p>
+      <div class="nav-links">
+        <a href="https://github.com/zhaolinnan12/youtube-transcript-toolkit">GitHub Repository</a>
+        <a href="https://www.npmjs.com/package/cleantranscript-cli">npm: cleantranscript-cli</a>
+        <a href="https://cleantranscript.com/">Browser Tool (CleanTranscript)</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>Quick Start (CLI)</h2>
+      <p>Requires Node.js 18+ with zero external dependencies. Works on <code>.json3</code>, <code>.srt</code>, rolling <code>yt-dlp</code> <code>.vtt</code> files, and raw text copied from YouTube's transcript panel.</p>
+      <pre><code># Install globally from npm
+npm install -g cleantranscript-cli
+
+# Strip timestamps and merge broken lines from raw YouTube panel text
+cat raw-transcript.txt | yt-caption-clean --no-timestamps --join
+
+# Convert a rolling yt-dlp .vtt file into Obsidian Markdown with YAML frontmatter
+yt-caption-clean captions.en.vtt -f md --obsidian-yaml --title "Talk Title" --url "https://www.youtube.com/watch?v=jNQXAC9IVRw"
+
+# Convert YouTube json3 captions to valid SubRip (.srt)
+yt-caption-clean captions.json3 -f srt &gt; captions.srt</code></pre>
+    </section>
+
+    <section>
+      <h2>Subtitle Format Comparison</h2>
+      <p>Download raw CSV: <a href="https://github.com/zhaolinnan12/youtube-transcript-toolkit/blob/main/data/subtitle-format-comparison.csv">data/subtitle-format-comparison.csv</a></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Format</th>
+              <th>Ext</th>
+              <th>Header</th>
+              <th>Timestamp Convention</th>
+              <th>Best For</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>SubRip</strong></td>
+              <td><code>.srt</code></td>
+              <td>No</td>
+              <td><code>00:00:03,120 --&gt; 00:00:06,480</code></td>
+              <td>Premiere Pro, DaVinci Resolve, CapCut, YouTube Studio</td>
+            </tr>
+            <tr>
+              <td><strong>WebVTT</strong></td>
+              <td><code>.vtt</code></td>
+              <td><code>WEBVTT</code></td>
+              <td><code>00:00:03.120 --&gt; 00:00:06.480</code></td>
+              <td>HTML5 video players, web captions, accessibility tracks</td>
+            </tr>
+            <tr>
+              <td><strong>Plain Text</strong></td>
+              <td><code>.txt</code></td>
+              <td>No</td>
+              <td><code>[00:03] Line text</code> (or no timestamps)</td>
+              <td>Reading, quoting, pasting into LLM prompts</td>
+            </tr>
+            <tr>
+              <td><strong>Markdown</strong></td>
+              <td><code>.md</code></td>
+              <td>Optional YAML</td>
+              <td><code>- **[00:03]** Line text</code></td>
+              <td>Obsidian, Notion, GitHub docs, structured AI context</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Timestamp Overhead Benchmark (~3.2s avg cue)</h2>
+      <p>Measured character and estimated token reduction (4 chars/token English approximation) when stripping standalone YouTube timestamps and joining broken caption rows. Raw CSV: <a href="https://github.com/zhaolinnan12/youtube-transcript-toolkit/blob/main/data/timestamp-overhead-benchmark.csv">data/timestamp-overhead-benchmark.csv</a></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Video Length</th>
+              <th>Caption Cues</th>
+              <th>Raw Panel Copy</th>
+              <th>Clean Prose TXT</th>
+              <th>Char Reduction</th>
+              <th>Est. Tokens Saved</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>5 min</td>
+              <td>94</td>
+              <td>4,305 chars / 188 lines</td>
+              <td>3,835 chars</td>
+              <td><strong>10.9%</strong></td>
+              <td>~117 tokens</td>
+            </tr>
+            <tr>
+              <td>30 min</td>
+              <td>563</td>
+              <td>26,195 chars / 1,126 lines</td>
+              <td>23,005 chars</td>
+              <td><strong>12.2%</strong></td>
+              <td>~798 tokens</td>
+            </tr>
+            <tr>
+              <td>90 min</td>
+              <td>1,688</td>
+              <td>80,062 chars / 3,376 lines</td>
+              <td>68,996 chars</td>
+              <td><strong>13.8%</strong></td>
+              <td>~2,767 tokens</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Regex Cleanup Cheatsheet</h2>
+      <p>Tested Find &amp; Replace patterns for VS Code, Obsidian, and Google Docs. Raw CSV: <a href="https://github.com/zhaolinnan12/youtube-transcript-toolkit/blob/main/data/timestamp-cleanup-regex.csv">data/timestamp-cleanup-regex.csv</a></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Source Format</th>
+              <th>Find (Regex)</th>
+              <th>Replace</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>YouTube Panel (standalone)</td>
+              <td><code>^\s*\d{1,2}:\d{2}(?::\d{2})?\s*$\n?</code></td>
+              <td><em>(empty)</em></td>
+              <td>Strips <code>0:05</code> and <code>1:24:09</code> rows</td>
+            </tr>
+            <tr>
+              <td>Inline bracketed timecodes</td>
+              <td><code>\[\d{1,2}:\d{2}(?::\d{2})?\]\s*</code></td>
+              <td><em>(empty)</em></td>
+              <td>Strips <code>[04:18] </code> prefixes</td>
+            </tr>
+            <tr>
+              <td>SubRip (<code>.srt</code>) cues</td>
+              <td><code>^\d+\r?\n\d{2}:\d{2}:\d{2},\d{3}\s--&gt;\s\d{2}:\d{2}:\d{2},\d{3}.*$</code></td>
+              <td><em>(empty)</em></td>
+              <td>Strips cue numbers and SRT timing lines</td>
+            </tr>
+            <tr>
+              <td>WebVTT inline <code>&lt;c&gt;</code> tags</td>
+              <td><code>&lt;/?(?:c|v|b|i|u)(?:[^&gt;]*)&gt;</code></td>
+              <td><em>(empty)</em></td>
+              <td>Removes rolling auto-caption tags from <code>yt-dlp</code> VTT</td>
+            </tr>
+            <tr>
+              <td>Broken single newlines</td>
+              <td><code>\r?\n+</code></td>
+              <td><code> </code> (space)</td>
+              <td>Joins 2–4s fragments into continuous prose</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <h2>Browser Version</h2>
+      <p>If you want to fetch existing public YouTube caption tracks directly in the browser and export SRT, WebVTT, plain text, or <a href="https://cleantranscript.com/youtube-to-markdown">Obsidian-ready Markdown</a> without local setup, use <a href="https://cleantranscript.com/">CleanTranscript</a>. It reads existing creator or auto-generated caption tracks only and does not transcribe raw audio.</p>
+    </section>
+
+    <footer>
+      MIT License · Source on <a href="https://github.com/zhaolinnan12/youtube-transcript-toolkit">GitHub</a> · CLI on <a href="https://www.npmjs.com/package/cleantranscript-cli">npm</a>
+    </footer>
+  </div>
+</body>
+</html>
