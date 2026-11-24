@@ -1,0 +1,5 @@
+format,extension,header_required,decimal_separator,timestamp_example,best_for
+SubRip,srt,No,comma,"00:00:03,120 --> 00:00:06,480","Premiere Pro, DaVinci Resolve, CapCut, YouTube Studio"
+WebVTT,vtt,Yes (WEBVTT),period,"00:00:03.120 --> 00:00:06.480","HTML5 video players, web captions, accessibility tracks"
+Plain Text,txt,No,none,"[00:03] Line text (or no timestamps)","Reading, searching, quoting, pasting into LLM prompts"
+Markdown,md,Optional (YAML frontmatter),none,"- **[00:03]** Line text","Notion, Obsidian, GitHub docs, structured AI context"

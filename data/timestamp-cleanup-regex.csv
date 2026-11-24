@@ -1,0 +1,7 @@
+source_format,find_regex,replace_with,flags,what_it_removes
+YouTube Panel (standalone lines),"^\s*\d{1,2}:\d{2}(?::\d{2})?\s*$\n?","","gm","Standalone 0:05 and 1:24:09 rows plus their trailing newline"
+Inline bracketed timestamps,"\[\d{1,2}:\d{2}(?::\d{2})?\]\s*","","g","Inline prefixes such as [04:18] or [1:02:11]"
+SubRip (.srt) cues,"^\d+\r?\n\d{2}:\d{2}:\d{2},\d{3}\s-->\s\d{2}:\d{2}:\d{2},\d{3}.*$","","gm","Cue sequence numbers and full SubRip timing ranges"
+WebVTT (.vtt) timing lines,"^\d{2}:\d{2}:\d{2}\.\d{3}\s-->\s\d{2}:\d{2}:\d{2}\.\d{3}.*$","","gm","WebVTT cue timing lines and cue settings"
+WebVTT inline tags,"</?(?:c|v|b|i|u)(?:[^>]*)>","","g","YouTube rolling auto-caption inline <c> timing tags"
+Broken single newlines,"\r?\n+"," ","g","Joins short 2-4s caption fragments into continuous prose"

@@ -1,0 +1,4 @@
+video_length_minutes,avg_cue_seconds,caption_cues,raw_youtube_chars,raw_youtube_lines,clean_prose_chars,char_reduction_pct,est_raw_tokens_4cpt,est_clean_tokens_4cpt,est_tokens_saved_4cpt
+5,3.2,94,4305,188,3835,10.9,1076,959,117
+30,3.2,563,26195,1126,23005,12.2,6549,5751,798
+90,3.2,1688,80062,3376,68996,13.8,20016,17249,2767
