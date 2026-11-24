@@ -1,7 +1,11 @@
 {
-  "name": "youtube-transcript-toolkit",
+  "name": "cleantranscript-cli",
   "version": "1.0.0",
   "description": "Zero-dependency Node.js toolkit, CLI, regex reference, and subtitle format specifications for cleaning and converting YouTube transcripts (SRT, WebVTT, TXT, Obsidian Markdown).",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zhaolinnan12/youtube-transcript-toolkit.git"
+  },
   "type": "module",
   "main": "./src/index.mjs",
   "exports": {
